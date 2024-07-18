@@ -1,29 +1,27 @@
 package com.enigma.purba_resto.entity;
 
-import jakarta.persistence.*;
-import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.stereotype.Service;
 
 @Entity
-@Table(name = "m_menu")
-public class Menu {
+@jakarta.persistence.Table(name="m_table")
+public class Table {
     @Id
     @GenericGenerator(name = "uuid", strategy = "uuid")
     @GeneratedValue(generator = "uuid")
     private String id;
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
-    @Column(name = "price", columnDefinition = "bigint check (price >= 0)")
-    private Long price;
 
-    public Menu(String id, String name, Long price) {
+    public Table(String id, String name) {
         this.id = id;
         this.name = name;
-        this.price = price;
     }
-    public Menu() {
 
+    public Table() {
     }
 
     public String getId() {
@@ -40,13 +38,5 @@ public class Menu {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Long getPrice() {
-        return price;
-    }
-
-    public void setPrice(Long price) {
-        this.price = price;
     }
 }

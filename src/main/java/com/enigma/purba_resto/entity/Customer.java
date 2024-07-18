@@ -1,6 +1,7 @@
 package com.enigma.purba_resto.entity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
