@@ -2,6 +2,7 @@ package com.enigma.purba_resto.service;
 
 import com.enigma.purba_resto.entity.Customer;
 import com.enigma.purba_resto.entity.Menu;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 

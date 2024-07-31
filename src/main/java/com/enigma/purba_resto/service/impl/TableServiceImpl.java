@@ -5,7 +5,9 @@ import com.enigma.purba_resto.repository.TableRepository;
 import com.enigma.purba_resto.service.TableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +26,7 @@ public class TableServiceImpl implements TableService {
             Table saved = tableRepository.save(table);
             return saved;
         }catch (DataIntegrityViolationException e){
-            throw new DataIntegrityViolationException("Table data already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"Table data already exists");
         }
         // save mirip persist jika di JPA Hibernate
     }
@@ -39,13 +41,13 @@ public class TableServiceImpl implements TableService {
             findByIdOrThrowNotFound(table.getId());
             return tableRepository.save(table);
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Table data already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"Table data already exists");
         }
     }
 
     @Override
     public Table getTableByName(String name) {
-        return tableRepository.findByName(name).orElseThrow(()->new RuntimeException("table not found su"));
+        return tableRepository.findByName(name).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Table not found su"));
     }
 
     @Override
@@ -62,6 +64,6 @@ public class TableServiceImpl implements TableService {
 
     private Table findByIdOrThrowNotFound(String id) {
         Optional<Table> byId = tableRepository.findById(id);
-        return byId.orElseThrow(() -> new RuntimeException("Table not found"));
+        return byId.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Table not found su"));
     }
 }

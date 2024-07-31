@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 //findByNameIgnoreCaseContainingAndPriceBetween
-public interface MenuRepository  extends JpaRepository<Menu, String> {
+public interface MenuRepository extends JpaRepository<Menu, String> {
     List<Menu> getMenuByNameIgnoreCaseContainingAndPriceBetween(String name, Long minPrice, Long maxPrice);
 }

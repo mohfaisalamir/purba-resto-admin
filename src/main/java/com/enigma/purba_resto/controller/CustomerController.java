@@ -1,9 +1,15 @@
 package com.enigma.purba_resto.controller;
 
+import com.enigma.purba_resto.dto.request.SearchCustomerRequest;
+import com.enigma.purba_resto.dto.response.CommonResponse;
+import com.enigma.purba_resto.dto.response.PagingResponse;
 import com.enigma.purba_resto.entity.Customer;
 import com.enigma.purba_resto.repository.CustomerRepository;
 import com.enigma.purba_resto.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,8 +31,41 @@ public class CustomerController {
     }
 
     @GetMapping
-    public List<Customer> findAll() {
-       return customerService.getAllCustomers();
+    public ResponseEntity<?> findAll(
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false,defaultValue = "10") Integer size,
+            @RequestParam(required = false,defaultValue = "asc") String direction,
+            @RequestParam(required = false, defaultValue = "name") String sortBy
+    ) {
+        if(page <= 0 || size <= 0) {
+            page = 1;
+            size = 10;
+        }
+        SearchCustomerRequest searchCustomerRequest = SearchCustomerRequest
+                .builder()
+                .page(page)
+                .size(size)
+                .direction(direction)
+                .sortBy(sortBy)
+                .build();
+        Page<Customer> allCustomers = customerService.getAllCustomers(searchCustomerRequest);
+
+        PagingResponse pagingResponse = PagingResponse.builder()
+                .page(page)
+                .size(size)
+                .count(allCustomers.getTotalElements())
+                .totalPages(allCustomers.getTotalPages())
+                .build();
+        CommonResponse<List<Customer>> response = CommonResponse
+                .<List<Customer>>builder()
+                .message("successfuly get all customer")
+                .statusCode(HttpStatus.OK.value())
+                .data(allCustomers.getContent())
+                .pagingResponse(pagingResponse)
+                .build();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
     }
 
     @GetMapping("/{id}")

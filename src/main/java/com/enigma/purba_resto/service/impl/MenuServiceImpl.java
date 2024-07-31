@@ -2,16 +2,18 @@ package com.enigma.purba_resto.service.impl;
 
 import com.enigma.purba_resto.entity.Menu;
 import com.enigma.purba_resto.repository.MenuRepository;
-import com.enigma.purba_resto.service.MenuService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class MenuServiceImpl implements MenuService {
+public class MenuServiceImpl implements com.enigma.purba_resto.service.MenuService {
     private final MenuRepository menuRepository;
     @Autowired
     public MenuServiceImpl(MenuRepository menuRepository) {
@@ -24,7 +26,7 @@ public class MenuServiceImpl implements MenuService {
             Menu saved = menuRepository.save(menu);
             return saved;
         }catch (DataIntegrityViolationException e){
-            throw new DataIntegrityViolationException("Menu data already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"Menu data already exists");
         }
     }
 
@@ -46,21 +48,20 @@ public class MenuServiceImpl implements MenuService {
 
     @Override
     public List<Menu> getAllMenus(String name, Long min, Long max) {
-        /*if(name == null || min == null || max == null){
+        if(name == null && min == null && max == null){
            return menuRepository.findAll();
-        }*/
-
+        }
         return menuRepository.getMenuByNameIgnoreCaseContainingAndPriceBetween(name,min,max);
     }
 
+    @Transactional(rollbackOn = Exception.class)
     @Override
     public void deleteMenu(String id) {
         Menu byIdOrThrowNotFound = findByIdOrThrowNotFound(id);
         menuRepository.delete(byIdOrThrowNotFound);
     }
-
     private Menu findByIdOrThrowNotFound(String id) {
         Optional<Menu> byId = menuRepository.findById(id);
-        return byId.orElseThrow(() -> new RuntimeException("Menu not found"));
+        return byId.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Woi, Mbok ne Ancok, Menu is not found"));
     }
 }

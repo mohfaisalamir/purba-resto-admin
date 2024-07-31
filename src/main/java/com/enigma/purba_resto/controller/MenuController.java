@@ -7,17 +7,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/menu")
 public class MenuController {
     private final MenuService menuService;
-
     @Autowired
     public MenuController(MenuService menuService) {
         this.menuService = menuService;
     }
+
+
 
     @PostMapping
     public Menu createNew(@RequestBody Menu menu) {
@@ -36,6 +36,7 @@ public class MenuController {
     ) {
         return menuService.getAllMenus(name,min,max);
     }
+
 
     @GetMapping("/{id}")
     public Menu findById(@PathVariable String id) {

@@ -2,8 +2,16 @@ package com.enigma.purba_resto.entity;
 
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "m_customer")
 public class Customer {
@@ -18,54 +26,6 @@ public class Customer {
     @Column(name = "phone",nullable = false,unique = true)
     private String phone;
     @Column(name = "is_member")
-    private boolean isMember;
+    private boolean isMember = false;
 
-    public Customer(String id, String name, String email, String phone, boolean isMember) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.isMember = isMember;
-    }
-    public Customer() {}
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public boolean getIsMember() {
-        return isMember;
-    }
-
-    public void setIsMember(boolean member) {
-        isMember = member;
-    }
 }

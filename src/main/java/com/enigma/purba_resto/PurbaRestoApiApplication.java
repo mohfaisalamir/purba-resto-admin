@@ -1,5 +1,6 @@
 package com.enigma.purba_resto;
 
+import com.enigma.purba_resto.dto.request.OrderRequest;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
