@@ -1,18 +1,22 @@
 package com.enigma.purba_resto.controller;
 
 import com.enigma.purba_resto.dto.request.OrderRequest;
+import com.enigma.purba_resto.dto.request.SearchOrderRequest;
 import com.enigma.purba_resto.dto.response.CommonResponse;
 import com.enigma.purba_resto.dto.response.OrderDetailResponse;
 import com.enigma.purba_resto.dto.response.OrderResponse;
+import com.enigma.purba_resto.dto.response.PagingResponse;
 import com.enigma.purba_resto.entity.Order;
 import com.enigma.purba_resto.entity.OrderDetail;
 import com.enigma.purba_resto.repository.OrderDetailRepository;
 import com.enigma.purba_resto.repository.OrderRepository;
 import com.enigma.purba_resto.service.OrderDetailService;
 import com.enigma.purba_resto.service.OrderService;
+import com.enigma.purba_resto.util.PagingUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,39 +36,52 @@ public class OrderController {
         this.orderService = orderService;
         this.orderDetailService = orderDetailService;
     }
+
     @PostMapping
     public ResponseEntity<CommonResponse<OrderResponse>> createNewTransaction(@RequestBody OrderRequest order) {
 //        ResponseEntity<> ini memudahkan anda untuk mengotak atik status codenya 201, 200, 202,500 dll.
         OrderResponse orderResponse = orderService.createNewOrder(order);
         CommonResponse<OrderResponse> response = CommonResponse.<OrderResponse>builder()
-                .message("Successfully created new transaction")
-                .statusCode(HttpStatus
-                        .CREATED
-                        .value())
+                .message("Successfully created new Order")
+                .statusCode(HttpStatus.CREATED.value())
                 .data(orderResponse)
                 .build();
         return ResponseEntity
-                .status(HttpStatus
-                        .CREATED
-                        .value())//status(201) // bisa langsung angka atau bisa juga ENUM
+                .status(HttpStatus.CREATED)//status(201) // bisa langsung angka atau bisa juga ENUM
                 .body(response);
     }
+
     @GetMapping
-    public ResponseEntity<CommonResponse<List<OrderResponse>>> getAllOrder() {
-        List<OrderResponse> allOrders = orderService.getAllOrders();
-        CommonResponse<List<OrderResponse>> response = CommonResponse.<List<OrderResponse>>builder()
-                .message("Successfully get All transaction")
-                .statusCode(HttpStatus
-                        .OK
-                        .value())
-                .data(allOrders)
+    public ResponseEntity<?> getAllOrder(
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size
+    ) {
+        page = PagingUtils.validatePage(page);
+        size = PagingUtils.validateSize(size);
+
+        SearchOrderRequest request = SearchOrderRequest.builder()
+                .page(page)
+                .size(size)
+                .build();
+        Page<OrderResponse> orderResponses = orderService.getAllOrders(request);
+
+        PagingResponse pagingResponse = PagingResponse.builder()
+                .page(page)
+                .size(size)
+                .count(orderResponses.getTotalElements())
+                .totalPages(orderResponses.getTotalPages())
                 .build();
 
+        CommonResponse<List<OrderResponse>> response = CommonResponse.<List<OrderResponse>>builder()
+                .message("successfully get all Order")
+                .statusCode(HttpStatus.OK.value())
+                .data(orderResponses.getContent())
+                .paging(pagingResponse)
+                .build();
         return ResponseEntity
-                .status(HttpStatus
-                        .OK
-                        .value())
+                .status(HttpStatus.OK)
                 .body(response);
+
 
     }
 
@@ -72,32 +89,25 @@ public class OrderController {
     public ResponseEntity<?> getOrderById(@PathVariable String id) {//CommonResponse<OrderResponse> diganti '?' agar lebih fleksible
         OrderResponse orderById = orderService.getOrderById(id);
         CommonResponse<OrderResponse> response = CommonResponse.<OrderResponse>builder()
-                .message("Successfully get All transaction")
-                .statusCode(HttpStatus
-                        .OK
-                        .value())
+                .message("Successfully get order by id")
+                .statusCode(HttpStatus.OK.value())
                 .data(orderById)
                 .build();
         return ResponseEntity
-                .status(HttpStatus
-                        .OK
-                        .value())
+                .status(HttpStatus.OK.value())
                 .body(response);
     }
+
     @GetMapping("/detail/{id}")
     public ResponseEntity<?> getOrderDetailById(@PathVariable String id) {
         OrderDetailResponse byId = orderDetailService.getById(id);
         CommonResponse<OrderDetailResponse> response = CommonResponse.<OrderDetailResponse>builder()
-                .message("Successfully get All transaction")
-                .statusCode(HttpStatus
-                        .OK
-                        .value())
+                .message("Successfully get detail Order by id")
+                .statusCode(HttpStatus.OK.value())
                 .data(byId)
                 .build();
         return ResponseEntity
-                .status(HttpStatus
-                        .OK
-                        .value())
+                .status(HttpStatus.OK.value())
                 .body(response);
     }
 }

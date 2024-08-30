@@ -2,6 +2,7 @@ package com.enigma.purba_resto.service.impl;
 
 import com.enigma.purba_resto.dto.request.OrderDetailRequest;
 import com.enigma.purba_resto.dto.request.OrderRequest;
+import com.enigma.purba_resto.dto.request.SearchOrderRequest;
 import com.enigma.purba_resto.dto.response.OrderDetailResponse;
 import com.enigma.purba_resto.dto.response.OrderResponse;
 import com.enigma.purba_resto.entity.*;
@@ -10,6 +11,9 @@ import com.enigma.purba_resto.repository.MenuRepository;
 import com.enigma.purba_resto.repository.OrderRepository;
 import com.enigma.purba_resto.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,13 +47,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponse createNewOrder(@RequestBody OrderRequest request) {
         // CARA 3 : MENCOBA DENGAN DTO
-        Customer customerById = customerService.getCustomerById(request.getCustomerId());
+        Customer customer = customerService.getCustomerById(request.getCustomerId());
         Table tableByName = tableService.getTableByName(request.getTableName());
 
 
         //buat entity object ==> table order
         Order order = Order.builder() //new Order(); // sebenernya kita bisa bikin Instance tanpa membuat new, tapi pakai builder (ini bisa lebih singkat)
-                .customer(customerById)
+                .customer(customer)
                 .table(tableByName)
                 .transDate(LocalDateTime.now())
                 .build();
@@ -88,20 +92,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> getAllOrders() {
-        List<Order> orders = orderRepository.findAll();
+    public Page<OrderResponse> getAllOrders(SearchOrderRequest request) {
+        Pageable pageable = PageRequest.of(
+                request.getPage()-1,
+                request.getSize());
+        Page<Order> orders = orderRepository.findAll(pageable);
+        return orders.map(order -> mapToOrderResponse(order))
         // cara 1
-        List<OrderResponse> orderResponses = new ArrayList<>();
+        /*List<OrderResponse> orderResponses = new ArrayList<>();
         for (Order order : orders) {
             OrderResponse orderResponse = mapToOrderResponse(order);
             orderResponses.add(orderResponse);
-        }
+        }*/
         //cara 2
         //List<OrderResponse> orderResponses1 = orders.stream().map(order -> mapToOrderResponse(order)).collect(Collectors.toList());
-        return orderResponses;
+        ;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public OrderResponse getOrderById(String id) {
         Order order = orderRepository.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"order not found"));
         return mapToOrderResponse(order);
@@ -120,12 +129,13 @@ public class OrderServiceImpl implements OrderService {
         }).collect(Collectors.toList());
 
         OrderResponse orderResponse = OrderResponse.builder()
-                .orderDate(order.getTransDate())
                 .orderId(order.getId())
                 .customerId(order.getCustomer().getId())
-                .customerName(order.getCustomer().getName())
                 .tableName(order.getTable().getName())
                 .orderDetails(orderDetailResponses)
+                .orderDate(order.getTransDate())
+
+                .customerName(order.getCustomer().getName())
                 .build();
 
         return orderResponse;

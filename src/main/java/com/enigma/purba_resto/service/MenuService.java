@@ -1,16 +1,20 @@
 package com.enigma.purba_resto.service;
 
-import com.enigma.purba_resto.entity.Customer;
+import com.enigma.purba_resto.dto.request.NewMenuRequest;
+import com.enigma.purba_resto.dto.request.SearchMenuRequest;
+import com.enigma.purba_resto.dto.request.UpdateMenuRequest;
+import com.enigma.purba_resto.dto.response.MenuResponse;
 import com.enigma.purba_resto.entity.Menu;
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface MenuService {
-    Menu createMenu(Menu customer);
-    List<Menu> createMenusBulk(List<Menu> menus);
-    Menu updateMenu(Menu customer);
-    Menu getMenuById(String id);
-    List<Menu> getAllMenus(String name, Long min, Long max);
+    MenuResponse createMenu(NewMenuRequest customer);
+    List<MenuResponse> createMenusBulk(List<NewMenuRequest> menus);
+    MenuResponse updateMenu(UpdateMenuRequest request);
+    Menu getMenuById(String id); // untuk internal perusahaan karena Menu memuat lengkap, sedangkan MenuResponse untuk client
+    MenuResponse getOne(String id);
+    Page<MenuResponse> getAllMenus(SearchMenuRequest request);
     void deleteMenu(String id);
 }

@@ -15,6 +15,6 @@ public class CommonResponse<T> { //CommonResponse<T>  ini dibuat di controller s
     private String message;
     private Integer statusCode;
     private T data;
-    private PagingResponse pagingResponse;
+    private PagingResponse paging;
 }
 

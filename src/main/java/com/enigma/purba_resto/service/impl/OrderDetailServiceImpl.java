@@ -7,6 +7,7 @@ import com.enigma.purba_resto.service.OrderDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -21,13 +22,15 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public List<OrderDetail> createBulk(List<OrderDetail> orderDetails) {
         return orderDetailRepository.saveAllAndFlush(orderDetails);
     }
 
     @Override
     public OrderDetailResponse getById(String id) {
-        OrderDetail orderDetail = orderDetailRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"order detail not found"));
+        OrderDetail orderDetail = orderDetailRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"order detail not found"));
         return OrderDetailResponse.builder()
                 .orderDetailId(orderDetail.getId())
                 .orderId(orderDetail.getOrder().getId())

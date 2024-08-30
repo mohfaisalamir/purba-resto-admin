@@ -1,5 +1,4 @@
-package com.enigma.purba_resto.dto.response;
-
+package com.enigma.purba_resto.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,9 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PagingResponse {
-    private Integer totalPages;
-    private Long count; //jumlah data yg ada di database
+public class SearchOrderRequest {
     private Integer page;
     private Integer size;
+
 }

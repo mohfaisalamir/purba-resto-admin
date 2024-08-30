@@ -20,9 +20,9 @@ public class Menu {
     @GenericGenerator(name = "uuid", strategy = "uuid")
     @GeneratedValue(generator = "uuid")
     private String id;
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
-    @Column(name = "price", columnDefinition = "bigint check (price >= 0)")
+    @Column(name = "price", columnDefinition = "bigint check (price >= 0)", nullable = false)
     private Long price;
 
 }
