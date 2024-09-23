@@ -33,6 +33,7 @@ public class TableServiceImpl implements TableService {
     public TableResponse createTable(NewTableRequest request) {
         try {
             validationUtil.validate(request);
+            validationUtil.validate(request);
             Table table = Table.builder()
                     .name(request.getName())
                     .build();
@@ -47,6 +48,7 @@ public class TableServiceImpl implements TableService {
     @Override
     public TableResponse updateTable(UpdateTableRequest request) {
         try {
+            validationUtil.validate(request);
             Table table = findByIdOrThrowNotFound(request.getId());
             table.setName(request.getName());
             tableRepository.saveAndFlush(table);

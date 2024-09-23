@@ -7,6 +7,7 @@ import com.enigma.purba_resto.dto.response.CustomerResponse;
 import com.enigma.purba_resto.entity.Customer;
 import com.enigma.purba_resto.repository.CustomerRepository;
 import com.enigma.purba_resto.service.CustomerService;
+import com.enigma.purba_resto.util.ValidationUtil;
 import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,14 +28,18 @@ import java.util.Optional;
 @Service
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
+    private final ValidationUtil validationUtil;
+
     @Autowired
-    public CustomerServiceImpl(CustomerRepository customerRepository) {
+    public CustomerServiceImpl(CustomerRepository customerRepository, ValidationUtil validationUtil) {
         this.customerRepository = customerRepository;
+        this.validationUtil = validationUtil;
     }
     @Transactional(rollbackFor = Exception.class)
     @Override
     public CustomerResponse createNewCustomer(NewCustomerRequest request) {
         try {
+            validationUtil.validate(request);
             Customer customer = Customer.builder()
                     .name(request.getName())
                     .phone(request.getPhone())
@@ -51,6 +56,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerResponse updateCustomer(UpdateCustomerRequest request) {
        try {
+           validationUtil.validate(request);
            Customer currrentCustomer = findByIdOrThrowNotFound(request.getId());
            currrentCustomer.setName(request.getName());
            currrentCustomer.setPhone(request.getPhone());

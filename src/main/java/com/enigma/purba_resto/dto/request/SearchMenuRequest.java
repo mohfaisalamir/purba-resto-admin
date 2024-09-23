@@ -14,5 +14,7 @@ public class SearchMenuRequest {
     private Integer size;
     private String direction;
     private String sortBy;
-
+    private String name; //searchByName;
+    private Long minPrice;
+    private Long maxPrice;
 }
