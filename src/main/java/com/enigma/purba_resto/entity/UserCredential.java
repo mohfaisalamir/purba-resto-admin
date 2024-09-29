@@ -8,29 +8,23 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
+@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Entity
-@Table(name = "m_customer")
-public class Customer {
+@Table(name = "m_user_credential")
+public class UserCredential {
     @Id
     @GenericGenerator(name = "uuid", strategy = "uuid")
     @GeneratedValue(generator = "uuid")
     private String id;
-    @Column(name = "name")
-    private String name;
-    @Column(name = "email")
-    private String email;
-    @Column(name = "phone",unique = true)
-    private String phone;
-    @Column(name = "is_member")
-    private boolean isMember = false;
-
-
-    @OneToOne
-    @JoinColumn(name = "user_credential_id", unique = true)
-    private UserCredential userCredential;
+    @Column(name = "username", unique = true)
+    private String username;
+    @Column(name = "password")
+    private String password;
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
 
 }

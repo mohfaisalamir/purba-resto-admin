@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class NewCustomerRequest {
     @NotBlank(message = "name is required")
     private String name;
-    @NotBlank(message = "email is required")
+    //@NotBlank(message = "email is required")
     @Pattern(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$", message = "Invalid email format")
     private String email;
     @NotNull(message = "Phone Number is required")@Pattern(regexp = "^\\+?\\d{8,14}$", message = "Invalid phone number format")

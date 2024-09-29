@@ -54,6 +54,12 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public CustomerResponse createNewCustomer(Customer request) {
+        Customer customer = customerRepository.saveAndFlush(request);
+        return mapToResponse(customer);
+    }
+
+    @Override
     public CustomerResponse updateCustomer(UpdateCustomerRequest request) {
        try {
            validationUtil.validate(request);
