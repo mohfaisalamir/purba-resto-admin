@@ -8,6 +8,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.enigma.purba_resto.entity.AppUser;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -19,8 +20,14 @@ import java.util.Map;
 @Slf4j
 public class JwtUtil {
 //    private final Logger log = Logger.getLogger(this.getClass().getName());// ini bisa digantikan dgn @Slf4j
-    private final String jwtSecret = "secret";
-    private final String appName = "PURBA RESTO"; // sebenarnya ini sangat rahasia.. bahaya jika orang lain tahu.
+
+    // ini tidak tepat jia disimpan disini,, seharusnya di tempat yang lebih aman misal applivation.properties
+    @Value("${app.PURBA-RESTO.jwt-secret}")
+    private String jwtSecret;
+    @Value("${app.PURBA-RESTO.app-name}")
+    private String appName; // sebenarnya ini sangat rahasia.. bahaya jika orang lain tahu.
+    @Value("${app.PURBA-RESTO.jwtExpirationInSeconds}")
+    private long jwtExpirationInSeconds;
 
     // fungsi ini untuk meng-generate TOKEN
     public String generateToken(AppUser appUser) {
@@ -37,7 +44,7 @@ public class JwtUtil {
                     .withIssuer(appName) // issuer itu, yang/siapa nyetak token
                     .//withExpiresAt(Date.from(Instant.now().plus(7, ChronoUnit.DAYS))) // Token berlaku 7 hari
                      withSubject(appUser.getId())
-                    .withExpiresAt(Instant.now().plusSeconds(60))//berlaku 20 detik, jika pakai detik
+                    .withExpiresAt(Instant.now().plusSeconds(jwtExpirationInSeconds))//berlaku 60*5 detik, jika pakai detik
                     .withIssuedAt(Instant.now())// kapan mulai nyetak token? ya sekarang
                     .withClaim("role",appUser.getRole().name())
                     .sign(algorithm);

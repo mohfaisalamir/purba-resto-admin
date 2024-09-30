@@ -22,9 +22,9 @@ public class UserServiceImpl implements UserService {
 
     // verifikasi JWT
     @Override
-    public AppUser loadUserByUserId(String id) {
-        UserCredential userCredential = userCredentialRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException(id + " invalid credential "));
+    public AppUser loadUserByUserName(String name) {
+        UserCredential userCredential = userCredentialRepository.findById(name)
+                .orElseThrow(() -> new UsernameNotFoundException(name + " invalid credential "));
         return AppUser.builder()
                 .id(userCredential.getId())
                 .username(userCredential.getUsername())
@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
                 .role(userCredential.getRole().getName())
                 .build();
     }
-    // verifikasi Authentifikasi Login
+    // verifikasi Authentifikasi Login - loadUserByUsername ini dipanggil saat authenticate
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserCredential userCredential = userCredentialRepository.findByUsername(username)
