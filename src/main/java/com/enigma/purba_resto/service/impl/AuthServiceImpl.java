@@ -2,18 +2,18 @@ package com.enigma.purba_resto.service.impl;
 
 import com.enigma.purba_resto.constant.ERole;
 import com.enigma.purba_resto.dto.request.AuthRequest;
+import com.enigma.purba_resto.dto.request.NewCustomerRequest;
 import com.enigma.purba_resto.dto.response.LoginResponse;
 import com.enigma.purba_resto.dto.response.RegisterResponse;
-import com.enigma.purba_resto.entity.AppUser;
-import com.enigma.purba_resto.entity.Customer;
-import com.enigma.purba_resto.entity.Role;
-import com.enigma.purba_resto.entity.UserCredential;
+import com.enigma.purba_resto.entity.*;
 import com.enigma.purba_resto.repository.UserCredentialRepository;
 import com.enigma.purba_resto.security.JwtUtil;
+import com.enigma.purba_resto.service.AdminService;
 import com.enigma.purba_resto.service.AuthService;
 import com.enigma.purba_resto.service.CustomerService;
 import com.enigma.purba_resto.service.RoleService;
 import com.enigma.purba_resto.util.ValidationUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final UserCredentialRepository userCredentialRepository;
     private final PasswordEncoder passwordEncoder;
@@ -36,17 +37,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final ValidationUtil validationUtil;
-
-    @Autowired
-    public AuthServiceImpl(UserCredentialRepository userCredentialRepository, PasswordEncoder passwordEncoder, CustomerService customerService, RoleService roleService, JwtUtil jwtUtil, AuthenticationManager authenticationManager, ValidationUtil validationUtil) {
-        this.userCredentialRepository = userCredentialRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.customerService = customerService;
-        this.roleService = roleService;
-        this.jwtUtil = jwtUtil;
-        this.authenticationManager = authenticationManager;
-        this.validationUtil = validationUtil;
-    }
+    private final AdminService adminService;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -59,31 +50,64 @@ public class AuthServiceImpl implements AuthService {
             Role savedRole = roleService.getOrSave(role);
             // Buat user credential
             UserCredential userCredential = UserCredential.builder()
-                    .username(authRequest.getUsername().toLowerCase())
+                    .username(authRequest.getUsername())
                     //.password(authRequest.getPassword()) // ini jika tanpa di hashing, bahaya,, bisa bisa di hack akun customer
                     .password(passwordEncoder.encode(authRequest.getPassword()))
                     .role(savedRole)
                     .build();
             // Simpan UserCredential terlebih dahulu
-            UserCredential userCredentialSaved = userCredentialRepository.saveAndFlush(userCredential);
-
-
+            userCredentialRepository.saveAndFlush(userCredential);
+/*
             // Set role ke UserCredential yang sudah disimpan
             userCredentialSaved.setRole(savedRole);
-
             // Update UserCredential setelah role di-set (cukup panggil saveAndFlush satu kali lagi)
             userCredentialRepository.saveAndFlush(userCredentialSaved);
-
             // Buat customer dengan user credential yang sudah lengkap
-            Customer customer = Customer.builder()
-                    .userCredential(userCredentialSaved)
+*/
+            // CUSTOMER
+            NewCustomerRequest customer = NewCustomerRequest.builder()
+                    .userCredentialId(userCredential.getId())
                     .build();
             customerService.createNewCustomer(customer);
 
             // Return response
             return RegisterResponse.builder()
-                    .username(userCredentialSaved.getUsername())
-                    .role(userCredentialSaved.getRole().getName().toString())
+                    .username(userCredential.getUsername())
+                    .role(userCredential.getRole().getName().toString())
+                    .build();
+
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "username already exists");
+        }
+    }
+
+    @Override
+    public RegisterResponse registerAdmin(AuthRequest authRequest) {
+        try {
+            validationUtil.validate(authRequest);
+            // Ambil atau simpan role
+            Role role = Role.builder()
+                    .name(ERole.ROLE_ADMIN).build();
+            Role savedRole = roleService.getOrSave(role);
+            // Buat user credential
+            UserCredential userCredential = UserCredential.builder()
+                    .username(authRequest.getUsername())
+                    //.password(authRequest.getPassword()) // ini jika tanpa di hashing, bahaya,, bisa bisa di hack akun customer
+                    .password(passwordEncoder.encode(authRequest.getPassword()))
+                    .role(savedRole)
+                    .build();
+            // Simpan UserCredential terlebih dahulu
+            userCredentialRepository.saveAndFlush(userCredential);
+            //ADMIN
+            Admin admin= Admin.builder()
+                    .userCredential(userCredential)
+                    .build();
+            adminService.createNew(admin);
+
+            // Return response
+            return RegisterResponse.builder()
+                    .username(userCredential.getUsername())
+                    .role(userCredential.getRole().getName().toString())
                     .build();
 
         } catch (DataIntegrityViolationException e) {

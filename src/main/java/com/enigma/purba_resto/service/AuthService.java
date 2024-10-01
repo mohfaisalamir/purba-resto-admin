@@ -6,5 +6,6 @@ import com.enigma.purba_resto.dto.response.RegisterResponse;
 
 public interface AuthService {
     RegisterResponse registerCustomer(AuthRequest request);
+    RegisterResponse registerAdmin(AuthRequest request);
     LoginResponse login(AuthRequest request);
 }

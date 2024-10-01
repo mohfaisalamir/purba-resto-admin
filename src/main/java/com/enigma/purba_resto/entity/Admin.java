@@ -21,6 +21,9 @@ public class Admin {
     @GeneratedValue(generator = "uuid")
     private String id;
     private String name;
+//    private String phone; // jika seperti ini, akan kebobolan..
+//    karena ada 2 nomer maka ada 2 akun, atau jika kita paksa ada nomer,
+//    maka harus ada tabel tersendiri untuk nomer telepone yang disimpan berdasarkan tabel kredensial
     @OneToOne
     @JoinColumn(name = "user_credential_id", unique = true)
     private UserCredential userCredential;

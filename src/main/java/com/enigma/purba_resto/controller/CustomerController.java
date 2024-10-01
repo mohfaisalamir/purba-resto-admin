@@ -26,19 +26,7 @@ public class CustomerController {
     public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
     }
-
-    @PostMapping
-    public ResponseEntity createNew(@RequestBody NewCustomerRequest request) {
-        CustomerResponse customerResponse = customerService.createNewCustomer(request);
-        CommonResponse<CustomerResponse> commonResponse = CommonResponse.<CustomerResponse>builder()
-                .message("Succesfully create new customer")
-                .statusCode(HttpStatus.CREATED.value())
-                .data(customerResponse)
-                .build();
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(commonResponse);
-    }
+    // create customer dihapus, karena tidakberguna
     @GetMapping("/{id}")
     public ResponseEntity<?> getCustomerById(@PathVariable String id) {
         CustomerResponse customerResponse = customerService.getOne(id);

@@ -10,13 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UpdateCustomerRequest {
-   @NotBlank(message = "id is required")
+public class UpdateAdminRequest {
+    @NotBlank(message = "id is required")
     private String id;
-   @NotBlank(message = "name is required")
+    @NotBlank(message = "name is required")
     private String name;
-   @NotBlank(message = "email is required")
-    private String email;
-   @NotBlank(message = "phone number is required")
-    private String phone;
 }
+

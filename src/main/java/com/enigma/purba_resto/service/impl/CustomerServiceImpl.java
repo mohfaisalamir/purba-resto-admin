@@ -5,6 +5,7 @@ import com.enigma.purba_resto.dto.request.SearchCustomerRequest;
 import com.enigma.purba_resto.dto.request.UpdateCustomerRequest;
 import com.enigma.purba_resto.dto.response.CustomerResponse;
 import com.enigma.purba_resto.entity.Customer;
+import com.enigma.purba_resto.entity.UserCredential;
 import com.enigma.purba_resto.repository.CustomerRepository;
 import com.enigma.purba_resto.service.CustomerService;
 import com.enigma.purba_resto.util.ValidationUtil;
@@ -44,6 +45,7 @@ public class CustomerServiceImpl implements CustomerService {
                     .name(request.getName())
                     .phone(request.getPhone())
                     .email(request.getEmail())
+                    .userCredential(UserCredential.builder().id(request.getUserCredentialId()).build())
                     .build();
             customerRepository.saveAndFlush(customer);
             return mapToResponse(customer);
@@ -52,13 +54,6 @@ public class CustomerServiceImpl implements CustomerService {
         }
         // save mirip persist jika di JPA Hibernate
     }
-
-    @Override
-    public CustomerResponse createNewCustomer(Customer request) {
-        Customer customer = customerRepository.saveAndFlush(request);
-        return mapToResponse(customer);
-    }
-
     @Override
     public CustomerResponse updateCustomer(UpdateCustomerRequest request) {
        try {
