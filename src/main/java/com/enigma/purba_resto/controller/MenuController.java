@@ -14,9 +14,11 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -32,10 +34,20 @@ public class MenuController {
 
 
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE /*, produces = MediaType.APPLICATION_JSON_VALUE*/)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> createMenu(@RequestBody NewMenuRequest request) {
+    public ResponseEntity<?> createMenu(
+            //@RequestBody NewMenuRequest request // gapakai requestBody, tapi RequestParam, yang kaitannya dengan form-data pada postman (key-value)
+            @RequestParam String name,
+            @RequestParam Long price,
+            @RequestParam MultipartFile image
+    ) {
         //System.out.println("JIANCCCCOOKKKKKK" +request);
+        NewMenuRequest request = NewMenuRequest.builder()
+                .name(name)
+                .price(price)
+                .multipartFile(image)
+                .build();
         MenuResponse menuResponse = menuService.createMenu(request);
         CommonResponse<MenuResponse> response = CommonResponse.<MenuResponse>builder()
                 .message("successfully create new menu")

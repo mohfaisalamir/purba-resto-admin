@@ -24,5 +24,8 @@ public class Menu {
     private String name;
     @Column(name = "price", columnDefinition = "bigint check (price >= 0)", nullable = false)
     private Long price;
+    @OneToOne
+    @JoinColumn(name = "menu_image_id", unique = true)
+    private MenuImage menuImage;
 
 }

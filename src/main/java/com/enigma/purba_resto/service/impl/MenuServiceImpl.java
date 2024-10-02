@@ -5,13 +5,17 @@ import com.enigma.purba_resto.dto.request.SearchMenuRequest;
 import com.enigma.purba_resto.dto.request.UpdateMenuRequest;
 import com.enigma.purba_resto.dto.response.MenuResponse;
 import com.enigma.purba_resto.entity.Menu;
+import com.enigma.purba_resto.entity.MenuImage;
+import com.enigma.purba_resto.repository.MenuImageRepository;
 import com.enigma.purba_resto.repository.MenuRepository;
 //import jakarta.transaction.Transactional;
+import com.enigma.purba_resto.service.MenuImageService;
 import com.enigma.purba_resto.util.ValidationUtil;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,22 +34,25 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class MenuServiceImpl implements com.enigma.purba_resto.service.MenuService {
     private final MenuRepository menuRepository;
     private final ValidationUtil validationUtil;
-    @Autowired
-    public MenuServiceImpl(MenuRepository menuRepository, ValidationUtil validationUtil) {
-        this.menuRepository = menuRepository;
-        this.validationUtil = validationUtil;
-    }
+    private final MenuImageService menuImageService;
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public MenuResponse createMenu(NewMenuRequest request) {
         validationUtil.validate(request);
+        // UPLOAD FILE
+        MenuImage fileMenuImage = menuImageService.createFile(request.getMultipartFile());
+
+        // create Menu
         Menu menu = Menu.builder()
                 .name(request.getName())
                 .price(request.getPrice())
+                .menuImage(fileMenuImage)
                 .build();
         menuRepository.saveAndFlush(menu);
         return mapToResponse(menu);
