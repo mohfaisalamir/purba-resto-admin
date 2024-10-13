@@ -143,7 +143,7 @@ public class MenuServiceImpl implements com.enigma.purba_resto.service.MenuServi
     private MenuResponse mapToResponse(Menu menu) {
         FileResponse fileResponse = FileResponse.builder()
                 .fileName(menu.getMenuImage().getName())
-                .url("/api/menu/" + menu.getId() + "/image")
+                .url("/api/menu/" + menu.getId() + "/image") //  tambah feature download ahahaaaayyy
                 .build();
         return MenuResponse.builder()
                 .id(menu.getId())
