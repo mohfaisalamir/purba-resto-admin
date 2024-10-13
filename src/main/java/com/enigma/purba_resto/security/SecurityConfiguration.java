@@ -47,6 +47,7 @@ public class SecurityConfiguration {
                         .accessDeniedHandler(customAccessDeniedHandler)) // Tambahkan CustomAccessDeniedHandler)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll() // Memperbolehkan akses ke /api/auth/**
+                        .requestMatchers( "/api/menu/**").permitAll() // Memperbolehkan akses ke /api/auth/**
                         .anyRequest().authenticated() // Memastikan semua request lainnya harus diautentikasi
                 )
                 .httpBasic(withDefaults()) // Mengaktifkan otentikasi HTTP Basic

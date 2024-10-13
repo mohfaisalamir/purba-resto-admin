@@ -12,7 +12,9 @@ import com.enigma.purba_resto.service.MenuService;
 import com.enigma.purba_resto.util.PagingUtils;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -121,6 +123,16 @@ public class MenuController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
+    }
+    @GetMapping("/{id}/image")
+    public ResponseEntity<?>  downLoadMemuImage (@PathVariable String id){
+        Resource resource = menuService.getMenuImageById(id);
+        //HTTP Header Response
+        String headerValues = "attachment ; filename = \"" + resource.getFilename() + "\"";
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_DISPOSITION ,headerValues)
+                .body(resource);
     }
 
     @PutMapping

@@ -3,34 +3,29 @@ package com.enigma.purba_resto.service.impl;
 import com.enigma.purba_resto.dto.request.NewMenuRequest;
 import com.enigma.purba_resto.dto.request.SearchMenuRequest;
 import com.enigma.purba_resto.dto.request.UpdateMenuRequest;
+import com.enigma.purba_resto.dto.response.FileResponse;
 import com.enigma.purba_resto.dto.response.MenuResponse;
 import com.enigma.purba_resto.entity.Menu;
 import com.enigma.purba_resto.entity.MenuImage;
-import com.enigma.purba_resto.repository.MenuImageRepository;
 import com.enigma.purba_resto.repository.MenuRepository;
 //import jakarta.transaction.Transactional;
 import com.enigma.purba_resto.service.MenuImageService;
 import com.enigma.purba_resto.util.ValidationUtil;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -86,6 +81,7 @@ public class MenuServiceImpl implements com.enigma.purba_resto.service.MenuServi
     @Override
     public MenuResponse getOne(String id) {
         Menu menu = findByIdOrThrowNotFound(id);
+        menuImageService.findFileByPath(menu.getMenuImage().getPath());
         return mapToResponse(menu);
     }
 
@@ -132,16 +128,28 @@ public class MenuServiceImpl implements com.enigma.purba_resto.service.MenuServi
         menuRepository.deleteAll(existingMenus);
     }
 
+    @Override
+    public Resource getMenuImageById(String id) {
+        Menu menu = findByIdOrThrowNotFound(id);
+        org.springframework.core.io.Resource fileByPath = menuImageService.findFileByPath(menu.getMenuImage().getPath());
+        return fileByPath;
+    }
+
     private Menu findByIdOrThrowNotFound(String id) {
         return menuRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "menu not found"));
     }
 
     private MenuResponse mapToResponse(Menu menu) {
+        FileResponse fileResponse = FileResponse.builder()
+                .fileName(menu.getMenuImage().getName())
+                .url("/api/menu/" + menu.getId() + "/image")
+                .build();
         return MenuResponse.builder()
                 .id(menu.getId())
                 .name(menu.getName())
                 .price(menu.getPrice())
+                .image(fileResponse)
                 .build();
     }
 
